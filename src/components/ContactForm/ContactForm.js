@@ -4,21 +4,15 @@ import {
   useFetchContactsQuery,
 } from '../../services/contactsApi';
 import toast from 'react-hot-toast';
+import { nanoid } from 'nanoid';
 import { Button, Label, Input } from '../common';
 import { Form } from './ContactForm.styled';
 
 export default function ContactForm() {
   const [contactName, setContactName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
-
   const { data: contacts } = useFetchContactsQuery();
-  const [addContact] = useAddContactMutation();
-
-  const onChange = e => {
-    e.target.name === 'contactName'
-      ? setContactName(e.target.value)
-      : setContactNumber(e.target.value);
-  };
+  const [addContact, { isSuccess: wasAddedContact }] = useAddContactMutation();
 
   const resetState = () => {
     setContactName('');
@@ -28,6 +22,12 @@ export default function ContactForm() {
   const onSubmit = e => {
     e.preventDefault();
 
+    const contact = {
+      id: nanoid(),
+      name: contactName,
+      phone: contactNumber,
+    };
+
     const normalizedContactName = contactName.toLowerCase();
     const savedContactName = contacts.some(
       item => item.name.toLowerCase() === normalizedContactName
@@ -35,12 +35,20 @@ export default function ContactForm() {
     if (savedContactName) {
       toast.error(`${contactName} is already in contacts!`);
       return;
+    } else if (wasAddedContact) {
+      toast.success(`${contactName} was added to your contacts!`);
+      return;
     }
 
-    addContact({ name: contactName, phone: contactNumber });
-    toast.success(`${contactName} was added to your contacts!`);
+    addContact(contact);
 
     resetState();
+  };
+
+  const onChange = e => {
+    e.target.name === 'contactName'
+      ? setContactName(e.target.value)
+      : setContactNumber(e.target.value);
   };
 
   return (
