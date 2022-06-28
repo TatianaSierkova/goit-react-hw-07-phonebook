@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   useAddContactMutation,
   useFetchContactsQuery,
@@ -12,7 +12,7 @@ export default function ContactForm() {
   const [contactName, setContactName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
   const { data: contacts } = useFetchContactsQuery();
-  const [addContact, { isSuccess: wasAddedContact }] = useAddContactMutation();
+  const [addContact, { isSuccess }] = useAddContactMutation();
 
   const resetState = () => {
     setContactName('');
@@ -35,15 +35,19 @@ export default function ContactForm() {
     if (savedContactName) {
       toast.error(`${contactName} is already in contacts!`);
       return;
-    } else if (wasAddedContact) {
-      toast.success(`${contactName} was added to your contacts!`);
-      return;
     }
 
     addContact(contact);
 
     resetState();
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(`Add in contacts!`);
+      resetState();
+    }
+  }, [isSuccess]);
 
   const onChange = e => {
     e.target.name === 'contactName'

@@ -1,16 +1,23 @@
 import { useDeleteContactMutation } from '../../services/contactsApi';
+import { useEffect } from 'react';
 import propTypes from 'prop-types';
 import toast from 'react-hot-toast';
 import { Button } from '../common';
 import { Item, Wrapper, Text } from './ContactItem.styled';
 
 const ContactItem = ({ id, contactName, contactNumber }) => {
-  const [deleteContact] = useDeleteContactMutation();
+  const [deleteContact, { isSuccess }] = useDeleteContactMutation();
 
-  const onContactDelete = (id, contactName) => {
+  useEffect(() => {
+    if (isSuccess) {
+      toast.error(`Was deleted from your contacts!`);
+    }
+  }, [isSuccess]);
+
+  /*const onContactDelete = (id, contactName) => {
+    //toast.error(`${contactName} was deleted from your contacts!`);
     deleteContact(id);
-    toast.error(`${contactName} was deleted from your contacts!`);
-  };
+  };*/
 
   return (
     <Item>
@@ -18,7 +25,7 @@ const ContactItem = ({ id, contactName, contactNumber }) => {
         <Text fwb>{contactName}</Text>
         <Text>{contactNumber}</Text>
       </Wrapper>
-      <Button onClick={() => onContactDelete(id, contactName)}>Delete</Button>
+      <Button onClick={() => deleteContact(id, contactName)}>Delete</Button>
     </Item>
   );
 };
