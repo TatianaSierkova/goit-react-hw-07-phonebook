@@ -38,8 +38,6 @@ export default function ContactForm() {
     }
 
     addContact(contact);
-
-    resetState();
   };
 
   useEffect(() => {
